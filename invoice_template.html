@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SKYNET Invoice</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 0.5cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            font-size: 10pt;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            table-layout: fixed;
+        }
+        td {
+            border: 1px solid #000;
+            padding: 3px 5px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .company-header {
+            color: #0066cc; /* Blue for SKYNET */
+            font-size: 16pt;
+            font-weight: bold;
+            text-align: left;
+            padding: 5px;
+        }
+        .invoice-label {
+            color: #FF6600; /* Orange */
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: right;
+            padding: 5px;
+        }
+        .company-info {
+            text-align: right;
+            font-size: 9pt;
+            line-height: 1.3;
+        }
+        .bill-to-header {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .bill-to-company {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .label-cell {
+            text-align: right;
+            font-weight: bold;
+            width: 30%;
+            padding-right: 10px;
+            white-space: nowrap;
+        }
+        .value-cell {
+            width: 70%;
+        }
+        .items-header {
+            background-color: #FFFF00; /* Yellow */
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+        }
+        .amount-cell {
+            text-align: right;
+        }
+        .notes-header {
+            font-weight: bold;
+            padding: 5px;
+        }
+        .notes-content {
+            font-style: italic;
+            padding: 5px;
+        }
+        /* Column widths */
+        .col-item { width: 8%; }
+        .col-order { width: 15%; }
+        .col-desc { width: 42%; }
+        .col-qty { width: 10%; }
+        .col-price { width: 12%; }
+        .col-amount { width: 13%; }
+    </style>
+</head>
+<body>
+    <table>
+        <!-- Header Row -->
+        <tr>
+            <td colspan="4" class="company-header">SKYNET SECURITY SYSTEM LTD.</td>
+            <td colspan="2" class="invoice-label">INVOICE</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td colspan="2" class="company-info">
+                {{ company_info.name }}<br>
+                {{ company_info.address }}<br>
+                PHONE: {{ company_info.phone }}<br>
+                {{ company_info.email }}
+            </td>
+        </tr>
+        
+        <!-- Vendor Info Row -->
+        <tr>
+            <td colspan="4"></td>
+            <td class="label-cell">Vendor number:</td>
+            <td>{{ vendor_number }}</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td class="label-cell">BN:</td>
+            <td>{{ bn }}</td>
+        </tr>
+        
+        <!-- Bill To and Invoice Details Row -->
+        <tr>
+            <td colspan="2" class="bill-to-header">BILL TO</td>
+            <td colspan="2"></td>
+            <td class="label-cell">INVOICE NBR:</td>
+            <td>{{ invoice_number }}</td>
+        </tr>
+        <tr>
+            <td colspan="4" rowspan="4">
+                <div class="bill-to-company">{{ bill_to.company }}</div>
+                {{ bill_to.contact }}<br>
+                {{ bill_to.address }}<br>
+                {{ bill_to.street }}<br>
+                {{ bill_to.phone }}<br>
+                <a href="mailto:{{ bill_to.email }}">{{ bill_to.email }}</a>
+            </td>
+            <td class="label-cell">INVOICE DATE:</td>
+            <td>{{ invoice_date }}</td>
+        </tr>
+        <tr>
+            <td class="label-cell">PAYMENT DUE DATE:</td>
+            <td>{{ due_date }}</td>
+        </tr>
+        <tr>
+            <td class="label-cell">AMOUNT DUE:</td>
+            <td>{{ amount_due }}</td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+        </tr>
+        
+        <!-- Items Header -->
+        <tr>
+            <td class="items-header col-item">ITEMS</td>
+            <td class="items-header col-order">ORDER NUMBER</td>
+            <td class="items-header col-desc">DESCRIPTION</td>
+            <td class="items-header col-qty">QUANTITY</td>
+            <td class="items-header col-price">PRICE</td>
+            <td class="items-header col-amount">AMOUNT</td>
+        </tr>
+        
+        <!-- Items Rows -->
+        {% for item in items %}
+        <tr>
+            <td>{{ item.item_number }}</td>
+            <td>{{ item.order_number }}</td>
+            <td>{{ item.description }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td class="amount-cell">{{ item.price }}</td>
+            <td class="amount-cell">{{ item.amount }}</td>
+        </tr>
+        {% endfor %}
+        
+        <!-- Totals -->
+        <tr>
+            <td colspan="4"></td>
+            <td class="label-cell">Subtotal:</td>
+            <td class="amount-cell">{{ subtotal }}</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td class="label-cell">GST 5%:</td>
+            <td class="amount-cell">{{ gst }}</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td class="label-cell">Total:</td>
+            <td class="amount-cell">{{ total }}</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td class="label-cell">AMOUNT DUE(CAD):</td>
+            <td class="amount-cell">{{ amount_due }}</td>
+        </tr>
+        
+        <!-- Notes -->
+        <tr>
+            <td colspan="6" class="notes-header">Notes:</td>
+        </tr>
+        <tr>
+            <td colspan="6" class="notes-content">
+                {{ notes | replace('\n', '<br>') | safe }}
+            </td>
+        </tr>
+    </table>
+</body>
+</html> 
