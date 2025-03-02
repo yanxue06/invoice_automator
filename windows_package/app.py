@@ -5,9 +5,8 @@ import os
 import sys
 from jinja2 import Template
 from xhtml2pdf import pisa  
-import dotenv
 
-dotenv.load_dotenv()
+
 class InvoiceApp:
     def __init__(self, root):
         self.root = root
@@ -46,16 +45,6 @@ class InvoiceApp:
                        padding=10,
                        font=("Arial", 11, "bold"))
         
-        # Add menu bar
-        menubar = tk.Menu(root)
-        root.config(menu=menubar)
-        
-        # Add Settings menu
-        settings_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Settings", menu=settings_menu)
-        settings_menu.add_command(label="Company Information", command=self.edit_company_info)
-        settings_menu.add_command(label="Change Logo", command=self.change_logo)
-        
         # Company Header Frame
         self.header_frame = ttk.Frame(content_frame)
         self.header_frame.pack(fill="x", padx=10, pady=5)
@@ -72,10 +61,10 @@ class InvoiceApp:
         self.company_frame.pack(fill="x", padx=10)
         
         company_info = [
-           os.getenv("company_name"),
-           os.getenv("company_address"),
-           os.getenv("company_phone"),
-           os.getenv("company_email")
+            "SKYNET SECURITY SYSTEM LTD",
+            "98 Fell ave, Burnaby,BC, Canada V5B 3Y2",
+            "(778) 322-7655",
+            "Vanipcamera@gmail.com"
         ]
         
         for info in company_info:
@@ -94,12 +83,12 @@ class InvoiceApp:
         ttk.Label(vendor_right, text="Vendor number:").grid(row=0, column=0, sticky="e")
         self.vendor_number = ttk.Entry(vendor_right, width=15)
         self.vendor_number.grid(row=0, column=1)
-        self.vendor_number.insert(0, "")
+        self.vendor_number.insert(0, "130304")
         
         ttk.Label(vendor_right, text="BN:").grid(row=1, column=0, sticky="e")
         self.bn = ttk.Entry(vendor_right, width=15)
         self.bn.grid(row=1, column=1)
-        self.bn.insert(0, "")
+        self.bn.insert(0, "817500390BC0001")
         
         # Bill To Frame
         self.bill_frame = ttk.LabelFrame(content_frame, text="BILL TO", padding=10)
@@ -192,7 +181,6 @@ class InvoiceApp:
         buttons_frame.pack(fill="x", pady=5)
         
         ttk.Button(buttons_frame, text="Add Item", command=self.add_item).pack(side="left", padx=5)
-        ttk.Button(buttons_frame, text="Modify Item", command=self.modify_item).pack(side="left", padx=5)
         ttk.Button(buttons_frame, text="Delete Item", command=self.delete_item).pack(side="left", padx=5)
         
         # Totals Frame
@@ -565,204 +553,6 @@ class InvoiceApp:
         for item in selected_items:
             self.tree.delete(item)
         self.update_totals()
-
-    def edit_company_info(self):
-        """Open a dialog to edit company information"""
-        company_dialog = tk.Toplevel(self.root)
-        company_dialog.title("Edit Company Information")
-        company_dialog.geometry("500x300")
-        company_dialog.transient(self.root)
-        company_dialog.grab_set()
-        
-        # Get current company info from .env file
-        import os
-        company_name = os.getenv("company_name", "SKYNET SECURITY SYSTEM LTD.")
-        company_address = os.getenv("company_address", "98 Fell ave, Burnaby,BC, Canada V5B 3Y2")
-        company_phone = os.getenv("company_phone", "(778) 322-7655")
-        company_email = os.getenv("company_email", "Vanipcamera@gmail.com")
-        
-        # Create form
-        ttk.Label(company_dialog, text="Company Name:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        name_entry = ttk.Entry(company_dialog, width=50)
-        name_entry.insert(0, company_name)
-        name_entry.grid(row=0, column=1, padx=10, pady=5)
-        
-        ttk.Label(company_dialog, text="Company Address:").grid(row=1, column=0, sticky="w", padx=10, pady=5)
-        address_entry = ttk.Entry(company_dialog, width=50)
-        address_entry.insert(0, company_address)
-        address_entry.grid(row=1, column=1, padx=10, pady=5)
-        
-        ttk.Label(company_dialog, text="Company Phone:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        phone_entry = ttk.Entry(company_dialog, width=50)
-        phone_entry.insert(0, company_phone)
-        phone_entry.grid(row=2, column=1, padx=10, pady=5)
-        
-        ttk.Label(company_dialog, text="Company Email:").grid(row=3, column=0, sticky="w", padx=10, pady=5)
-        email_entry = ttk.Entry(company_dialog, width=50)
-        email_entry.insert(0, company_email)
-        email_entry.grid(row=3, column=1, padx=10, pady=5)
-        
-        # Save button
-        def save_company_info():
-            # Update .env file
-            with open(".env", "w") as f:
-                f.write(f'company_name="{name_entry.get()}"\n')
-                f.write(f'company_address="{address_entry.get()}"\n')
-                f.write(f'company_phone="{phone_entry.get()}"\n')
-                f.write(f'company_email="{email_entry.get()}"\n')
-            
-            # Reload environment variables
-            dotenv.load_dotenv(override=True)
-            
-            messagebox.showinfo("Success", "Company information updated successfully!")
-            company_dialog.destroy()
-        
-        save_btn = ttk.Button(company_dialog, text="Save", command=save_company_info)
-        save_btn.grid(row=4, column=1, sticky="e", padx=10, pady=20)
-    
-    def change_logo(self):
-        """Open a dialog to select a new logo image"""
-        from tkinter import filedialog
-        import shutil
-        import os
-        
-        # Ask user to select an image file
-        filetypes = [
-            ("Image files", "*.png *.jpg *.jpeg *.gif"),
-            ("All files", "*.*")
-        ]
-        
-        logo_path = filedialog.askopenfilename(
-            title="Select Logo Image",
-            filetypes=filetypes
-        )
-        
-        if logo_path:
-            # Copy the selected image to the application directory and rename it to logo.png
-            try:
-                # Determine the destination path
-                if getattr(sys, 'frozen', False):
-                    # Running as compiled executable
-                    app_dir = os.path.dirname(sys.executable)
-                else:
-                    # Running as script
-                    app_dir = os.path.dirname(os.path.abspath(__file__))
-                
-                # Create the destination path
-                dest_path = os.path.join(app_dir, "logo.png")
-                
-                # Copy and rename the file
-                shutil.copy2(logo_path, dest_path)
-                
-                messagebox.showinfo("Success", "Logo updated successfully!\nThe new logo will be used in future invoices.")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to update logo: {str(e)}")
-
-    def modify_item(self):
-        """Modify the selected item in the invoice"""
-        # Get the selected item
-        selected_items = self.tree.selection()
-        
-        if not selected_items:
-            messagebox.showwarning("No Selection", "Please select an item to modify.")
-            return
-        
-        # Get the item data
-        item_id = selected_items[0]
-        item_values = self.tree.item(item_id, "values")
-        
-        if not item_values:
-            return
-        
-        # Create a dialog for modifying the item
-        modify_dialog = tk.Toplevel(self.root)
-        modify_dialog.title("Modify Item")
-        modify_dialog.geometry("600x350")
-        modify_dialog.transient(self.root)
-        modify_dialog.grab_set()
-        
-        # Create form fields
-        ttk.Label(modify_dialog, text="Item Number:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        item_number_entry = ttk.Entry(modify_dialog, width=20)
-        item_number_entry.insert(0, item_values[0] if len(item_values) > 0 else "")
-        item_number_entry.grid(row=0, column=1, padx=10, pady=5)
-        
-        ttk.Label(modify_dialog, text="Order Number:").grid(row=1, column=0, sticky="w", padx=10, pady=5)
-        order_number_entry = ttk.Entry(modify_dialog, width=20)
-        order_number_entry.insert(0, item_values[1] if len(item_values) > 1 else "")
-        order_number_entry.grid(row=1, column=1, padx=10, pady=5)
-        
-        ttk.Label(modify_dialog, text="Description:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        description_entry = Text(modify_dialog, width=40, height=4)
-        description_entry.insert("1.0", item_values[2] if len(item_values) > 2 else "")
-        description_entry.grid(row=2, column=1, padx=10, pady=5)
-        
-        ttk.Label(modify_dialog, text="Quantity:").grid(row=3, column=0, sticky="w", padx=10, pady=5)
-        quantity_entry = ttk.Entry(modify_dialog, width=20)
-        quantity_entry.insert(0, item_values[3] if len(item_values) > 3 else "")
-        quantity_entry.grid(row=3, column=1, padx=10, pady=5)
-        
-        ttk.Label(modify_dialog, text="Price:").grid(row=4, column=0, sticky="w", padx=10, pady=5)
-        price_entry = ttk.Entry(modify_dialog, width=20)
-        price_entry.insert(0, item_values[4].replace("$", "") if len(item_values) > 4 else "")
-        price_entry.grid(row=4, column=1, padx=10, pady=5)
-        
-        # Save button
-        def save_modified_item():
-            try:
-                # Get values from entries
-                item_number = item_number_entry.get().strip()
-                order_number = order_number_entry.get().strip()
-                description = description_entry.get("1.0", "end-1c").strip()
-                
-                # Validate quantity (must be a number)
-                quantity_str = quantity_entry.get().strip()
-                try:
-                    quantity = int(quantity_str)
-                except ValueError:
-                    messagebox.showerror("Invalid Input", "Quantity must be a number.")
-                    return
-                
-                # Validate price (must be a number)
-                price_str = price_entry.get().strip()
-                try:
-                    price = float(price_str)
-                except ValueError:
-                    messagebox.showerror("Invalid Input", "Price must be a number.")
-                    return
-                
-                # Calculate amount
-                amount = quantity * price
-                
-                # Format values for display
-                price_display = f"${price:.2f}"
-                amount_display = f"${amount:.2f}"
-                
-                # Update the item in the treeview
-                self.tree.item(item_id, values=(
-                    item_number,
-                    order_number,
-                    description,
-                    quantity,
-                    price_display,
-                    amount_display
-                ))
-                
-                # Update totals
-                self.update_totals()
-                
-                # Close the dialog
-                modify_dialog.destroy()
-                
-            except Exception as e:
-                messagebox.showerror("Error", f"An error occurred: {str(e)}")
-        
-        save_btn = ttk.Button(modify_dialog, text="Save Changes", command=save_modified_item)
-        save_btn.grid(row=5, column=1, sticky="e", padx=10, pady=20)
-        
-        # Cancel button
-        cancel_btn = ttk.Button(modify_dialog, text="Cancel", command=modify_dialog.destroy)
-        cancel_btn.grid(row=5, column=0, sticky="w", padx=10, pady=20)
 
 if __name__ == "__main__":
     root = tk.Tk()

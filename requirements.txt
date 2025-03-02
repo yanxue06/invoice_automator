@@ -1,6 +1,14 @@
 # No additional requirements needed - uses standard library only
 
 # Python 3.x with tkinter (comes with standard Python installation)
-reportlab==4.1.0  # For PDF generation
-jinja2==3.1.3  # For HTML templating
-weasyprint==64.1  # For HTML to PDF conversion
+reportlab>=3.6.0  # For PDF generation
+jinja2>=3.0.0  # For HTML templating
+xhtml2pdf>=0.2.8  # For HTML to PDF conversion
+weasyprint==64.1  # Alternative HTML to PDF converter
+Pillow>=9.0.0  # Image processing library (required by reportlab)
+pyphen==0.17.2  # Hyphenation library (required by weasyprint)
+fonttools==4.53.1  # Font handling (required by weasyprint)
+tinycss2==1.4.0  # CSS parser (required by weasyprint)
+cssselect2==0.7.0  # CSS selector engine (required by weasyprint)
+cffi>=1.16.0  # C Foreign Function Interface (required by weasyprint)
+pydyf>=0.11.0  # PDF generation library (required by weasyprint)
